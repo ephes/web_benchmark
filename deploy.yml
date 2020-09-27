@@ -44,5 +44,5 @@
 
     - name: Make sure web_benchmark service is running
       systemd:
-        state: started
+        state: restarted
         name: web_benchmark
