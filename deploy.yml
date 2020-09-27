@@ -1,0 +1,26 @@
+- hosts: staging
+  tasks:
+    - name: Install required build packages
+      apt:
+        name: ["git"]
+
+    - name: Add the user "benchmark" with a bash shell
+      user:
+        name: benchmark
+        shell: /bin/bash
+
+    - name: Git checkout repository
+      git:
+        repo: "https://github.com/ephes/web_benchmark"
+        dest: /home/benchmark/site
+
+    - name: Install poetry
+      shell: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | /usr/local/bin/python3.8
+      become: true
+      become_user: benchmark
+
+    - name: Replace python3 in poetry bin with python3.8 :(
+      lineinfile:
+        path: /home/benchmark/.poetry/bin/poetry
+        regexp: "python3"
+        line: "#!/usr/bin/env python3.8"
