@@ -1,2 +1,2 @@
 ansible-playbook -i ~/projects/infrastructure/inventory deploy.yml
-jupyter notebook --notebook-dir notebooks
+cd notebooks && ../manage.py shell_plus --notebook
