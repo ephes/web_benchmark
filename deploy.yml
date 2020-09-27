@@ -13,6 +13,8 @@
       git:
         repo: "https://github.com/ephes/web_benchmark"
         dest: /home/benchmark/site
+      become: true
+      become_user: benchmark
 
     - name: Install poetry
       shell: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | /usr/local/bin/python3.8
@@ -24,3 +26,10 @@
         path: /home/benchmark/.poetry/bin/poetry
         regexp: "python3"
         line: "#!/usr/bin/env python3.8"
+
+    - name: Install poetry dependencies
+      shell: /home/benchmark/.poetry/bin/poetry install
+      args:
+        chdir: /home/benchmark/site
+      become: true
+      become_user: benchmark
