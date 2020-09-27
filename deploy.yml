@@ -18,6 +18,8 @@
 
     - name: Install poetry
       shell: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | /usr/local/bin/python3.8
+      args:
+        warn: no
       become: true
       become_user: benchmark
 
@@ -33,3 +35,14 @@
         chdir: /home/benchmark/site
       become: true
       become_user: benchmark
+
+    - name: Create a symbolic link for systemd service
+      file:
+        src: /home/benchmark/site/web_benchmark.service
+        dest: /etc/systemd/system/web_benchmark.service
+        state: link
+
+    - name: Make sure web_benchmark service is running
+      systemd:
+        state: started
+        name: web_benchmark
