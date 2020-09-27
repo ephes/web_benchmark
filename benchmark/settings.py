@@ -25,7 +25,7 @@ SECRET_KEY = 'b1y4apm267-am-ya1^i=7227z#hz=8y9ca4am*p_&iclf6wlu4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["staging.wersdoerfer.de"]
 
 
 # Application definition
