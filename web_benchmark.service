@@ -1,0 +1,14 @@
+# Contents of /etc/systemd/system/multi-user.target.wants/web_benchmark.service
+[Unit]
+Description=Django Benchmark Service
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/home/benchmark/site
+User=benchmark
+ExecStart=/home/benchmark/site/gunicorn.sh
+
+[Install]
+WantedBy=multi-user.target
