@@ -1,0 +1,37 @@
+http:
+  routers:
+    web-router:
+      rule: "Host(`staging.wersdoerfer.de`) || Host(`www.staging.wersdoerfer.de`)"
+
+      entryPoints:
+        - web
+      middlewares:
+        - redirect
+        - csrf
+      service: django
+
+    web-secure-router:
+      rule: "Host(`staging.wersdoerfer.de`) || Host(`staging.wersdoerfer.de`)"
+
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: django
+      tls:
+        certResolver: letsencrypt
+
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    csrf:
+      headers:
+        hostsProxyHeaders: ["X-CSRFToken"]
+
+  services:
+    django:
+      loadBalancer:
+        servers:
+          - url: http://localhost:8000

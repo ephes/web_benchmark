@@ -46,3 +46,9 @@
       systemd:
         state: restarted
         name: web_benchmark
+
+    - name: Create a symbolic link for traefik loadbalancer
+      file:
+        src: /home/benchmark/site/web_benchmark.traefik.yml
+        dest: /etc/traefik/dynamic/web_benchmark.traefik.yml
+        state: link
