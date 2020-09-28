@@ -9,3 +9,10 @@ def api(request):
     if "task_id" in request.GET:
         payload["task_id"] = request.GET["task_id"]
     return JsonResponse(payload)
+
+
+async def async_api(request):
+    payload = {"message": "Hello World!"}
+    if "task_id" in request.GET:
+        payload["task_id"] = request.GET["task_id"]
+    return JsonResponse(payload)
