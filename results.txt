@@ -1,0 +1,97 @@
+httperf --server staging.wersdoerfer.de --uri /api/ --ssl --num-conns 100 --rate 100 --timeout 1
+
+# gunicorn 8 worker
+# bottleneck ist irgendwie FD_SETSIZE wegen select oder so..
+# httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+# 8k requests per second from linux box:
+httperf --hog --server staging.wersdoerfer.de --uri /api/ --num-conns 20000 --rate 8000 --timeout 20 --port 8000
+
+# ssl? Etwa 1.8K - bottleneck ist hier cpu für traefik (ssl terminierung)
+httperf --hog --server staging.wersdoerfer.de --uri /api/ --num-conns 20000 --rate 1800 --timeout 20 --ssl
+
+# apib
+apib -c 200 -d 60 https://staging.wersdoerfer.de/api/
+(5 / 60) 5510.969
+(10 / 60) 5641.643
+(15 / 60) 5639.326
+(20 / 60) 5633.258
+(25 / 60) 5638.777
+(30 / 60) 5647.845
+(35 / 60) 5622.000
+(40 / 60) 5634.554
+(45 / 60) 5609.962
+(50 / 60) 5635.333
+(55 / 60) 5619.040
+(60 / 60) 5645.380
+Duration:             60.014 seconds
+Attempted requests:   337470
+Successful requests:  337470
+Non-200 results:      0
+Connections opened:   6
+Socket errors:        0
+
+Throughput:           5623.173 requests/second
+Average latency:      17.792 milliseconds
+Minimum latency:      13.631 milliseconds
+Maximum latency:      238.646 milliseconds
+Latency std. dev:     3.026 milliseconds
+50% latency:          17.449 milliseconds
+90% latency:          20.471 milliseconds
+98% latency:          23.000 milliseconds
+99% latency:          24.385 milliseconds
+
+Client CPU average:   0%
+Client CPU max:       0%
+Client memory usage:  0%
+
+Total bytes sent:     22.53 megabytes
+Total bytes received: 79.17 megabytes
+Send bandwidth:       3.00 megabits / second
+Receive bandwidth:    10.55 megabits / second
+
+# autocannon - very similar to apib
+autocannon -c 100 -d 60 https://staging.wersdoerfer.de/api/
+Running 60s test @ https://staging.wersdoerfer.de/api/
+100 connections
+
+┌─────────┬───────┬───────┬───────┬───────┬──────────┬─────────┬────────┐
+│ Stat    │ 2.5%  │ 50%   │ 97.5% │ 99%   │ Avg      │ Stdev   │ Max    │
+├─────────┼───────┼───────┼───────┼───────┼──────────┼─────────┼────────┤
+│ Latency │ 14 ms │ 17 ms │ 22 ms │ 24 ms │ 17.32 ms │ 4.66 ms │ 327 ms │
+└─────────┴───────┴───────┴───────┴───────┴──────────┴─────────┴────────┘
+┌───────────┬─────────┬─────────┬─────────┬────────┬─────────┬─────────┬─────────┐
+│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%  │ Avg     │ Stdev   │ Min     │
+├───────────┼─────────┼─────────┼─────────┼────────┼─────────┼─────────┼─────────┤
+│ Req/Sec   │ 4183    │ 5559    │ 5643    │ 5691   │ 5614.6  │ 189.1   │ 4180    │
+├───────────┼─────────┼─────────┼─────────┼────────┼─────────┼─────────┼─────────┤
+│ Bytes/Sec │ 1.03 MB │ 1.37 MB │ 1.39 MB │ 1.4 MB │ 1.38 MB │ 46.6 kB │ 1.03 MB │
+└───────────┴─────────┴─────────┴─────────┴────────┴─────────┴─────────┴─────────┘
+
+Req/Bytes counts sampled once per second.
+
+337k requests in 60.06s, 82.9 MB read
+
+# bombardier
+./bombardier -c 100 -d 30s https://staging.wersdoerfer.de/api/                                                                                          252ms  So 27 Sep 14:14:55 2020
+Bombarding https://staging.wersdoerfer.de:443/api/ for 30s using 100 connection(s)
+[================================================================================================================================================================================================] 30s
+Done!
+Statistics        Avg      Stdev        Max
+  Reqs/sec      5581.09     432.25    6351.48
+  Latency       17.91ms     6.33ms   309.19ms
+  HTTP codes:
+    1xx - 0, 2xx - 167524, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:     1.97MB/s
+
+# wrk - most popular
+wrk -t12 -c100 -d30s https://staging.wersdoerfer.de/api/
+Running 30s test @ https://staging.wersdoerfer.de/api/
+  12 threads and 100 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    17.66ms    2.43ms  71.86ms   71.49%
+    Req/Sec   453.75     34.21   515.00     88.23%
+  162244 requests in 30.06s, 38.06MB read
+Requests/sec:   5398.10
+Transfer/sec:      1.27MB
+
